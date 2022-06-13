@@ -1,9 +1,4 @@
-from turtle import forward
 import numpy as np
-from sympy import *
-from sympy.parsing.sympy_parser import parse_expr
-from matplotlib.animation import FuncAnimation
-from sympy.plotting import plot
 import matplotlib.pyplot as plt
 import time
 import copy
@@ -37,6 +32,7 @@ class PredictorCorrector:
         tempVec1 = self.b-self.A@self.x
         tempVec2 = self.c - self.A.T@self.y -self.s
         tempVec3 = self.mu * oneVec - self.x*self.s
+        
         self.resVec = np.concatenate((tempVec1, tempVec2,tempVec3)) 
         
         tempMat1 = np.concatenate((self.A, np.zeros((self.m, self.m)), np.zeros((self.m, self.n))), axis=1)

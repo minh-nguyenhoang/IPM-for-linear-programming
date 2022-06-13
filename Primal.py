@@ -1,9 +1,4 @@
-from turtle import forward
 import numpy as np
-from sympy import *
-from sympy.parsing.sympy_parser import parse_expr
-from matplotlib.animation import FuncAnimation
-from sympy.plotting import plot
 import matplotlib.pyplot as plt
 import time
 import copy
@@ -91,7 +86,7 @@ class Primal:
 
 
 
-def checkPrimalFeasible(A,b,eps=1e-6):  ## Nếu bài toán có tồn tại tập chấp nhận được, thì bài đk Ax+s=b có s=0
+def checkPrimalFeasible(A,b,eps=1e-6):  ## Nếu bài toán có tồn tại tập chấp nhận được, thì hàm mục tiêu min 1^Ts vđk Ax+s=b có kq = 0
         A = np.concatenate([A,np.identity(A.shape[0])],axis=1)
         c=np.concatenate([np.zeros(A.shape[1]-A.shape[0]),np.ones(A.shape[0])])
         x0=np.ones(A.shape[1])
@@ -109,7 +104,7 @@ def checkPrimalFeasible(A,b,eps=1e-6):  ## Nếu bài toán có tồn tại tậ
 def checkDualFeasible(A,c,eps=1e-6):  ## Bổ đề Farkas:
     b=np.zeros(A.shape[0])
     x0=np.ones(A.shape[1])
-    p1 = Primal(-c, A, b, x0,eps=eps)  #min c^Tx -> max -c^Tx
+    p1 = Primal(-c, A, b, x0,eps=eps)  #min c^Tx --> max -c^Tx
     p1.solve()
     p1.plotConvergence()
     #print(np.sum(c*p1.x))
