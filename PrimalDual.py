@@ -10,7 +10,7 @@ import copy
 
 
 class PrimalDual:
-    def __init__(self, c, A, b, x0, s0,y0="default", eps=1e-6, phi=0.99995, alpha=0.75):
+    def __init__(self, c, A, b, x0, s0,y0="default", eps=1e-6, phi=0.99995, alpha=0.5):
         self.c = c
         self.A = A
         self.b = b
@@ -24,7 +24,7 @@ class PrimalDual:
         self.eps = eps
         self.phi=phi
         self.alpha = alpha
-        self.mu = self.alpha*self.x*self.s/self.n
+        self.mu = np.sum(self.x*self.s)/self.n
         self.iter=0
         self.xList=[self.x]
         self.yList=[self.y]
@@ -36,7 +36,7 @@ class PrimalDual:
         oneVec=np.ones(self.n)
         tempVec1 = self.b-self.A@self.x
         tempVec2 = self.c - self.A.T@self.y -self.s
-        tempVec3 = self.mu * oneVec - self.x*self.s
+        tempVec3 = self.alpha*self.mu * oneVec - self.x*self.s
         self.resVec = np.concatenate((tempVec1, tempVec2,tempVec3)) 
         
         tempMat1 = np.concatenate((self.A, np.zeros((self.m, self.m)), np.zeros((self.m, self.n))), axis=1)
@@ -74,7 +74,7 @@ class PrimalDual:
         self.s += coefDual*self.deltaS   # Tính biến bù đối ngẫu
         tempS = copy.deepcopy(self.s)
         self.sList.append(tempS)
-        self.mu = self.alpha*self.x*self.s/self.n
+        self.mu = np.sum(self.x*self.s)/self.n
         self.iter += 1
         self.dualGapList.append(np.sum(self.x*self.s))
 
@@ -111,8 +111,7 @@ A = np.asarray([[-1,1,2,1],[1,1,-1,-1],[3,2,-6,3]])
 b = np.asarray([2, 6, 9],dtype=np.float32)
 s0 = np.asarray([1, 2, 3, 4],dtype=np.float32)
 
-#p2=PrimalDual(c, A, b, x0,s0)
-#p2.solve()
-#p2.plotConvergence()
+p2=PrimalDual(c, A, b, x0,s0)
+p2.solve()
+p2.plotConvergence()
 
-print(checkPrimalFeasible(A,b))
