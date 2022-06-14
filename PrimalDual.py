@@ -7,7 +7,7 @@ from sympy.plotting import plot
 import matplotlib.pyplot as plt
 import time
 import copy
-
+import readInputFile as r
 
 class PrimalDual:
     def __init__(self, c, A, b, x0, s0,y0="default", eps=1e-6, phi=0.99995, alpha=0.5):
@@ -31,6 +31,11 @@ class PrimalDual:
         self.sList=[self.s]
         self.dualGapList=[np.sum(self.x*self.s)]
         
+    @classmethod
+    def fromfile(cls,filepath,y0="default",eps=1e-6, phi=0.995, alpha=0.5):
+        c, A, b, x0, s0 = r.readInputFile(filepath)
+        return cls(c, A, b, x0,s0,y0, eps,phi, alpha)
+
 
     def calculate(self):
         oneVec=np.ones(self.n)
@@ -111,7 +116,8 @@ A = np.asarray([[-1,1,2,1],[1,1,-1,-1],[3,2,-6,3]])
 b = np.asarray([2, 6, 9],dtype=np.float32)
 s0 = np.asarray([1, 2, 3, 4],dtype=np.float32)
 
-p2=PrimalDual(c, A, b, x0,s0)
+#p2=PrimalDual(c, A, b, x0,s0)
+p2 =PrimalDual.fromfile("input.txt")
 p2.solve()
 p2.plotConvergence()
 

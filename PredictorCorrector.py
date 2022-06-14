@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import copy
-
+import readInputFile as r
 
 class PredictorCorrector:
-    def __init__(self, c, A, b, x0, s0,y0=0, eps=1e-6, phi=0.99995):
+    def __init__(self, c, A, b, x0, s0,y0="default", eps=1e-6, phi=0.99995):
         self.c = c
         self.A = A
         self.b = b
@@ -14,7 +14,7 @@ class PredictorCorrector:
         self.s = s0
         self.m = self.A.shape[0]
         self.n = self.x.shape[0]
-        if self.y == 0:
+        if self.y == 'default':
             self.y=np.linalg.pinv(self.A.T)@(self.c-self.s)
         self.eps = eps
         self.phi=phi
@@ -25,7 +25,12 @@ class PredictorCorrector:
         self.yList=[self.y]
         self.sList=[self.s]
         self.dualGapList=[np.sum(self.x*self.s)]
-        
+
+    @classmethod
+    def fromfile(cls,filepath,eps=1e-6, phi=0.995):
+        c, A, b, x0, s0 = r.readInputFile(filepath)
+        return cls(c, A, b, x0,s0,y0='default', eps=eps,phi=phi)
+    
 
     def calculate_affine(self):
         oneVec=np.ones(self.n)
@@ -124,6 +129,7 @@ A = np.asarray([[-1,1,2,1],[1,1,-1,-1],[3,2,-6,3]])
 b = np.asarray([2, 6, 9],dtype=np.float32)
 s0 = np.asarray([1, 2, 3, 4],dtype=np.float32)
 
-p2=PredictorCorrector(c, A, b, x0,s0)
+#p2=PredictorCorrector(c, A, b, x0,s0)
+p2 = PredictorCorrector.fromfile('input.txt')
 p2.solve()
 p2.plotConvergence()
