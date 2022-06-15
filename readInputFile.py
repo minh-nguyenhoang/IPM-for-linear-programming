@@ -44,7 +44,7 @@ def readInputFile(filepath):
         if flag == 's0':
             s0.append(x)
 
-    return np.asarray(c,dtype=np.float32), np.reshape(np.asarray(A,dtype=np.float32),(np.asarray(b).shape[0] ,np.asarray(c).shape[0])) ,np.asarray(b,dtype=np.float32) ,np.asarray(x0,dtype=np.float32), np.asarray(s0,dtype=np.float32)
+    return np.asarray(c,dtype=np.float32), np.reshape(np.asarray(A,dtype=np.float64),(np.asarray(b).shape[0] ,np.asarray(c).shape[0])) ,np.asarray(b,dtype=np.float32) ,np.asarray(x0,dtype=np.float32), np.asarray(s0,dtype=np.float32)
 
 
 
