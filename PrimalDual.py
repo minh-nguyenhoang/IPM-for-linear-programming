@@ -32,8 +32,13 @@ class PrimalDual:
         self.dualGapList=[np.sum(self.x*self.s)]
         
     @classmethod
-    def fromfile(cls,filepath,y0="default",eps=1e-6, phi=0.995, alpha=0.5):
+    def fromTXTfile(cls,filepath,y0="default",eps=1e-6, phi=0.995, alpha=0.5):
         c, A, b, x0, s0 = r.readInputFile(filepath)
+        return cls(c, A, b, x0,s0,y0, eps,phi, alpha)
+
+    @classmethod
+    def fromJSONfile(cls,filepath,y0="default",eps=1e-6, phi=0.995, alpha=0.5):
+        c, A, b, x0, s0 = r.readJSONFile(filepath)
         return cls(c, A, b, x0,s0,y0, eps,phi, alpha)
 
 
@@ -94,6 +99,8 @@ class PrimalDual:
 
     def plotConvergence(self):
         plt.step(np.arange(self.iter+1),self.dualGapList,where='post')
+        plt.xlabel("Số lần lặp")
+        plt.ylabel("Khoảng cách đối ngẫu")
         plt.show()
 
 def checkPrimalFeasible(A,b,eps=1e-3):
@@ -114,10 +121,11 @@ c = np.asarray([3, -3, 1, -1],dtype=np.float32)
 x0 = np.asarray([1, 1, 1, 1],dtype=np.float32)
 A = np.asarray([[-1,1,2,1],[1,1,-1,-1],[3,2,-6,3]])
 b = np.asarray([2, 6, 9],dtype=np.float32)
-s0 = np.asarray([1, 2, 3, 4],dtype=np.float32)
+s0 = np.asarray([1, 3, 5, 6],dtype=np.float32)
 
 #p2=PrimalDual(c, A, b, x0,s0)
-p2 =PrimalDual.fromfile("input.txt")
+p2 = PrimalDual.fromfile("input2.txt")
 p2.solve()
+print("The value of the objective function is: ", np.sum(p2.c*p2.x))
 p2.plotConvergence()
 

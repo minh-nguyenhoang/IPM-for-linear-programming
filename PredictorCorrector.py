@@ -27,10 +27,15 @@ class PredictorCorrector:
         self.dualGapList=[np.sum(self.x*self.s)]
 
     @classmethod
-    def fromfile(cls,filepath,eps=1e-6, phi=0.995):
+    def fromTXTfile(cls,filepath,eps=1e-6, phi=0.995):
         c, A, b, x0, s0 = r.readInputFile(filepath)
         return cls(c, A, b, x0,s0,y0='default', eps=eps,phi=phi)
     
+    @classmethod
+    def fromJSONfile(cls,filepath,eps=1e-6, phi=0.995):
+        c, A, b, x0, s0 = r.readJSONFile(filepath)
+        return cls(c, A, b, x0,s0,y0='default', eps=eps,phi=phi)
+
 
     def calculate_affine(self):
         oneVec=np.ones(self.n)
@@ -120,6 +125,8 @@ class PredictorCorrector:
 
     def plotConvergence(self):
         plt.step(np.arange(self.iter+1),self.dualGapList,where='post')
+        plt.xlabel("Số lần lặp")
+        plt.ylabel("Khoảng cách đối ngẫu")
         plt.show()
 
 
@@ -130,6 +137,7 @@ b = np.asarray([2, 6, 9],dtype=np.float32)
 s0 = np.asarray([1, 2, 3, 4],dtype=np.float32)
 
 #p2=PredictorCorrector(c, A, b, x0,s0)
-p2 = PredictorCorrector.fromfile('input.txt')
+p2 = PredictorCorrector.fromJSONfile('input.json')
 p2.solve()
+print("The value of the objective function is: ", np.sum(p2.c*p2.x))
 p2.plotConvergence()

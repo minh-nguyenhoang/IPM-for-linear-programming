@@ -25,8 +25,13 @@ class Primal:
         self.progress=progress
         
     @classmethod
-    def fromfile(cls,filepath,eps=1e-6, mu=2, alpha=0.5,phi=0.995, progress="yes"):
+    def fromTXTfile(cls,filepath,eps=1e-6, mu=2, alpha=0.5,phi=0.995, progress="yes"):
         c, A, b, x0, temp = r.readInputFile(filepath)
+        return cls(c, A, b, x0, eps, mu, alpha,phi, progress)
+
+    @classmethod
+    def fromJSONfile(cls,filepath,eps=1e-6, mu=2, alpha=0.5,phi=0.995, progress="yes"):
+        c, A, b, x0, temp = r.readJSONFile(filepath)
         return cls(c, A, b, x0, eps, mu, alpha,phi, progress)
 
     def calculate(self):
@@ -46,30 +51,35 @@ class Primal:
         res = np.linalg.solve(self.Hess, self.resVec)
         # Chia kết quả thành vector hướng Newton deltaX và biến đối ngẫu y
         self.deltaX = np.asarray(res[0:self.n])
-        self.y = np.asarray(res[self.n:])
+        self.y = np.asarray(res[self.n:self.n+self.m])
 
     def update(self):
         self.forward()
-        tempCoef=[-self.x[i]/self.deltaX[i] for i in range(self.n)] ## Tính toán hệ số -x_i/ deltaX_i
+        tempCoef=[-self.x[i]/(self.deltaX[i]-1e-3) for i in range(self.n)] ## Tính toán hệ số -x_i/ deltaX_i
         tempCoef2=np.asarray([x for x in tempCoef if x >0],dtype=np.float32) ## Chọn các hệ số lớn hơn mà có deltaX <0 
         #print(tempCoef2)
         tempCoef2=tempCoef2*self.phi
         coef = np.amin(np.append(tempCoef2,0.95)) ## Chọn hệ số dương lớn nhất có thể mà không khiến x bị âm
-        self.x += coef*self.deltaX
+        self.x += 0.75*coef*self.deltaX
         tempX = copy.deepcopy(self.x)
         self.xList.append(tempX)
         self.s = self.c - self.A.T@self.y   # Tính biến bù đối ngẫu
+        #self.s = self.mu*(1/self.x - np.diag(1/self.x)**2@self.deltaX)
         tempS = copy.deepcopy(self.s)
         self.sList.append(tempS)
+        #self.dualGapList.append(self.n*self.mu)
         self.mu = self.alpha * self.mu 
         self.iter += 1
         self.dualGapList.append(np.sum(self.x*self.s))
+      
+
 
     def solve(self):
         self.update()
         if self.progress in ["Y" , "y" ,"yes" ,"Yes"]:
             print(f"Duality gap in iteration {self.iter} is {self.dualGapList[self.iter]}")
         while np.sum(np.abs(self.x*self.s))>self.eps: # Điều kiện dừng tính khoảng cách đối ngẫu
+        #while self.mu*self.n >self.eps:
             self.update() 
             if self.progress in ["Y" , "y" ,"yes" ,"Yes"]:
                 print(f"Duality gap in iteration {self.iter} is {self.dualGapList[self.iter]}")               
@@ -78,6 +88,8 @@ class Primal:
 
     def plotConvergence(self):
         plt.step(np.arange(self.iter+1),self.dualGapList,where='post')
+        plt.xlabel("Số lần lặp")
+        plt.ylabel("Khoảng cách đối ngẫu")
         plt.show()
 
 
@@ -131,9 +143,9 @@ A = np.asarray([[-1,1,2,1],[1,1,-1,-1],[3,2,-6,3]])
 b = np.asarray([2, 6, 9],dtype=np.float32)
 
 #p2=Primal(c, A, b, x0,mu=10)
-p2 = Primal.fromfile("input.txt")
+p2 = Primal.fromTXTfile("input.txt",mu=15)
 p2.solve()
-#print("The value of the objective function is: ", np.sum(c*p2.x))
+print("The value of the objective function is: ", np.sum(p2.c*p2.x))
 p2.plotConvergence()
 
 
